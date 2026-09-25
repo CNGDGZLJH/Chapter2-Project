@@ -11,6 +11,26 @@
   // ============================================================
   "tasks": [
     {
+      // ===== 编译并运行 Windows 图形界面版 =====
+      // 源码在 GUI/ 子目录，业务逻辑与主程序共用同一份 func.cpp / List.h
+      // 独立构建脚本：GUI/build_gui.bat
+      "label": "C++: 编译并运行 GUI 版",
+      "type": "process",
+      "command": "C:\\Windows\\System32\\cmd.exe",
+      "args": ["/d", "/c", "build_gui.bat"],
+      "options": {
+        "cwd": "${workspaceFolder}/GUI"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "detail": "编译 GUI/book_gui.exe（图形界面版，不影响控制台版）"
+    },
+    {
       // ===== 默认任务（Ctrl+Shift+B）：编译并运行整个工程 =====
       "label": "C++: 编译并运行工程",
       "type": "process",

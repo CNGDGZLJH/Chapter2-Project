@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+  <assemblyIdentity
+      type="win32"
+      name="Chapter2Project.BookManagerGUI"
+      version="1.0.0.0"
+      processorArchitecture="*"/>
+  <dependency>
+    <dependentAssembly>
+      <assemblyIdentity
+          type="win32"
+          name="Microsoft.Windows.Common-Controls"
+          version="6.0.0.0"
+          processorArchitecture="*"
+          publicKeyToken="6595b64144ccf1df"
+          language="*"/>
+    </dependentAssembly>
+  </dependency>
+  <!-- 注意：不要声明 activeCodePage=UTF-8。
+       程序内部统一按 UTF-8 字节处理字符串；若同时把进程 ANSI 代码页改成 65001，
+       依赖 ANSI 路径的 CRT 调用（fopen 等）行为会变化，反而引入乱码风险。 -->
+  <compatibility xmlns="urn:schemas-microsoft-com:compatibility.v1">
+    <application>
+      <supportedOS Id="{8e0f7a12-bfb3-4fe8-b9a5-48fd50a15a9a}"/>
+    </application>
+  </compatibility>
+</assembly>

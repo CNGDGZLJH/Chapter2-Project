@@ -12,6 +12,21 @@ int main() {
 
     BookList L ;
     InitList(&L) ;
+
+    FILE *f = fopen("books.txt", "r") ;     // 从目前图书数据库中加载文件
+    if(f != NULL)
+    {
+        
+        Book *p = new Book ;
+        while(fscanf(f, "%s %s %s %f %d", p->isbn, p->title, p->author, &p->price, &p->stock) == 5)
+        {
+            AddBook(&L, *p) ;
+        }
+        delete p ;        
+        fclose(f) ;
+        cout << "已从文件中加载图书数据！" << endl << endl ;
+    }
+
     cout << "========== 图书管理系统 ==========" << endl 
         << "1. 添加图书" << endl 
         << "2. 查找图书（按ISBN）" << endl 
@@ -72,11 +87,55 @@ int main() {
         }
         else if(op == 5)    // 修改图书信息
         {
-            // 待实现
+            int choice ;
+            cout << "请输入要修改的图书的ISBN：" ;
+            char isbn[MAX_ISBN] ;
+            cin >> isbn ;
+            cout << "请选择要修改的信息的序号：" << endl 
+                << "1. 书名" << endl 
+                << "2. 作者" << endl 
+                << "3. 价格" << endl 
+                << "4. 库存" << endl ;
+            cin >> choice ;
+            Book *p = FindByIsbn(&L, isbn) ;
+            if(p != NULL)
+            {
+                if(choice == 1)
+                {
+                    cout << "请输入新的书名：" ;
+                    cin >> p->title ;
+                }
+                else if(choice == 2)
+                {
+                    cout << "请输入新的作者：" ;
+                    cin >> p->author ;
+                }
+                else if(choice == 3)
+                {
+                    cout << "请输入新的价格：" ;
+                    cin >> p->price ;
+                }
+                else if(choice == 4)
+                {
+                    cout << "请输入新的库存：" ;
+                    cin >> p->stock ;
+                }
+                else
+                {
+                    cout << "无效的选择！" << endl ;
+                }
+            }
+            else
+            {
+                cout << "未找到该图书！" << endl ;
+            }
         }
         else if(op == 6)    // 按书名模糊查找
         {
-            // 待实现
+            char title[MAX_TITLE] ;
+            cout << "请输入书名关键字：" ;
+            cin >> title ;
+            FindByTitle(&L, title) ;
         }
         else if(op == 7)    // 按价格排序
         {

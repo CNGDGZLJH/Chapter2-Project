@@ -16,6 +16,11 @@
 # 避免把 .vscode/ 等其他位置需要提交的文件误伤
 build/
 
+# GUI 版编译出来的可执行文件
+# （源码 GUI/ 不受影响，只有 exe 被忽略；需要提交时用 git add -f）
+GUI/book_gui.exe
+GUI/app.res
+
 # ---------- 目标文件 / 中间产物 ----------
 *.o
 *.obj

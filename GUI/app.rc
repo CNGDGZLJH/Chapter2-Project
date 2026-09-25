@@ -1,0 +1,6 @@
+/* 资源文件：把清单与图标嵌入 exe
+   1 RT_MANIFEST = 应用程序清单（启用 ComCtl32 v6 深色模式支持）
+   1 RT_ICON / GROUP_ICON 未提供图标文件，故不包含 */
+#include <windows.h>
+
+1 RT_MANIFEST "app.manifest"
