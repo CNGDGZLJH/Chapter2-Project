@@ -1,0 +1,40 @@
+{
+  // ===== C/C++ IntelliSense：指向 MSYS2 UCRT64 的 GCC 16.1.0 =====
+  // 注意：全局设置里的 Dev-Cpp gcc 已被这里的编译器覆盖
+  "C_Cpp.default.compilerPath": "C:/msys64/ucrt64/bin/g++.exe",
+  "C_Cpp.default.cStandard": "c17",
+  "C_Cpp.default.cppStandard": "c++17",
+  "C_Cpp.default.intelliSenseMode": "windows-gcc-x64",
+  "C_Cpp.default.compilerArgs": ["-std=c++17"],
+  "C_Cpp.errorSquiggles": "enabled",
+  "C_Cpp.intelliSenseEngine": "default",
+
+  // ===== 源码编码：作业含中文，统一 UTF-8、不加 BOM =====
+  // 已实测 main.cpp/List.h 均为合法 UTF-8（如"图"= E5 9B BE），无 BOM、无非法字节
+  "files.encoding": "utf8",
+  "files.autoGuessEncoding": false,
+  "files.eol": "\n",
+  "files.exclude": {
+    "**/build": true
+  },
+
+  // ===== 集成终端：把 UCRT64 插到 PATH 最前面 =====
+  // 否则 g++/gdb 可能落到 Dev-Cpp 或 C:\MinGW 的旧版本上
+  "terminal.integrated.env.windows": {
+    "PATH": "C:\\msys64\\ucrt64\\bin;${env:PATH}",
+    "MSYSTEM": "UCRT64"
+  },
+  // 不要设置 automationProfile：那会让任务改用 PowerShell，而本机只有
+  // PowerShell 5.1（不支持 && 连接符）。任务已在 tasks.json 里显式指定 cmd.exe。
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+
+  "[cpp]": {
+    "editor.wordBasedSuggestions": "off",
+    "editor.semanticHighlighting.enabled": true,
+    "editor.suggest.insertMode": "replace",
+    "editor.formatOnSave": false
+  },
+
+  "code-runner.runInTerminal": true,
+  "C_Cpp.debugShortcut": true
+}

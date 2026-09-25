@@ -1,0 +1,47 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // ===== F5 调试整个工程 =====
+      // 本工程是多文件(2个 .cpp)，所以调试前必须把全部 .cpp 一起编译，
+      // 只用 preLaunchTask「编译工程」——不要用只编译当前文件的任务
+      "name": "C++: 调试工程 (GDB)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/main.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${workspaceFolder}",
+      "environment": [
+        {
+          "name": "PATH",
+          "value": "C:/msys64/ucrt64/bin;${env:PATH}"
+        }
+      ],
+      "console": "integratedTerminal",
+      "MIMode": "gdb",
+      // 必须用 UCRT64 自带的 GDB 17.2，
+      // 不要用 PATH 里 Dev-Cpp 的 GDB 7.8.1（2014 年版本，解析不了 GCC 16 的 DWARF 调试信息）
+      "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
+      "externalConsole": false,
+      "preLaunchTask": "C++: 编译工程",
+      "setupCommands": [
+        {
+          "description": "启用整齐打印（结构体展开更易读）",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Windows 下关闭 gdb 自带的新控制台",
+          "text": "-gdb-set new-console off",
+          "ignoreFailures": true
+        },
+        {
+          "description": "忽略 Windows 控制台产生的 SIGTRAP 噪声，避免断点乱跳",
+          "text": "-gdb-set signal SIGTRAP nostop noprint pass",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}

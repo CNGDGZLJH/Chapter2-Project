@@ -1,0 +1,121 @@
+{
+  "version": "2.0.0",
+  // ============================================================
+  // 所有编译任务都用 type:"process" 直接运行 build.bat，
+  // 不让 VS Code 去拼 shell 命令。
+  //
+  // 原因：VS Code 的 shell 任务会把命令交给终端默认 shell
+  // （本机是 PowerShell 5.1），而 PowerShell 5.1 不支持 && 连接符，
+  // 会出现 "标记'&&'不是此版本中的有效语句分隔符" 的报错。
+  // 交给 build.bat 由 cmd 执行，彻底绕开该问题。
+  // ============================================================
+  "tasks": [
+    {
+      // ===== 默认任务（Ctrl+Shift+B）：编译并运行整个工程 =====
+      "label": "C++: 编译并运行工程",
+      "type": "process",
+      "command": "C:\\Windows\\System32\\cmd.exe",
+      "args": ["/d", "/c", "build.bat", "Debug", "run"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "detail": "编译工程下所有 .cpp 并立即运行（Ctrl+Shift+B 默认走这个）"
+    },
+    {
+      // ===== 只编译不运行（F5 调试的前置任务）=====
+      "label": "C++: 编译工程",
+      "type": "process",
+      "command": "C:\\Windows\\System32\\cmd.exe",
+      "args": ["/d", "/c", "build.bat", "Debug"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "detail": "编译全部 .cpp 到 build/main.exe，不运行"
+    },
+    {
+      // ===== 发布版（交作业用：静态链接，不依赖 MSYS2 运行库）=====
+      "label": "C++: 编译工程 (Release)",
+      "type": "process",
+      "command": "C:\\Windows\\System32\\cmd.exe",
+      "args": ["/d", "/c", "build.bat", "Release"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "detail": "O2 优化 + 静态链接，生成可独立运行的 main.exe"
+    },
+    {
+      // ===== 单文件语法检查（不链接，因此不会报"未定义引用"）=====
+      "label": "C++: 语法检查当前文件",
+      "type": "process",
+      "command": "C:/msys64/ucrt64/bin/g++.exe",
+      "args": [
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-fsyntax-only",
+        "${file}"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "PATH": "C:/msys64/ucrt64/bin;${env:PATH}"
+        }
+      },
+      "problemMatcher": ["$gcc"],
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "detail": "只做语法检查，用于快速发现当前文件的语法错误"
+    },
+    {
+      // ===== 清理 =====
+      "label": "C++: 清理构建产物",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        "Remove-Item -Recurse -Force 'build' -ErrorAction SilentlyContinue; New-Item -ItemType Directory -Force -Path 'build' | Out-Null; Write-Host 'build 目录已清空'"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared",
+        "clear": true
+      },
+      "detail": "清空 build/"
+    }
+  ]
+}
