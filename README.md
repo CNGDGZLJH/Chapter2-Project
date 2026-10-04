@@ -19,3 +19,15 @@ Data Structures and Algorithms Project
 - 利用DSH+ds-v4.1-flash做了一个简单的图形界面，还要继续完善
 
 > 未完成借书还书相关操作
+
+### 3、20261005 04:48
+
+- 修正统计信息中图书总价值的计算方式
+
+- 新增借书/还书功能：新增借阅记录单链表BorrowRecord/BorrowList
+
+- 借阅记录保存到borrow.txt，关闭程序时可保留借阅数据
+
+- 保存到文件时补充成功/失败提示
+
+> 还剩下项目报告没有完成 

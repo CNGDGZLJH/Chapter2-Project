@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <ctime>
 #include "List.h"
 using namespace std;
 /*
@@ -85,19 +86,24 @@ int AddBook(BookList *L, Book b)                       // 添加图书
     return 1 ;
 }
 
-Book* FindByIsbn(BookList *L, const char *isbn)        // 根据ISBN查找图书
+static Book* FindBook(BookList *L, const char *isbn)    // 查找图书，供其他函数使用
 {
     Book *p = L->head->next ;
     while(p != NULL)
     {
         if(strcmp(p->isbn, isbn) == 0)
-        {
-            cout << "找到该图书！" << endl ;
             return p ;
-        }
         p = p->next ;
     }
     return NULL ;
+}
+
+Book* FindByIsbn(BookList *L, const char *isbn)        // 根据ISBN查找图书
+{
+    Book *p = FindBook(L, isbn) ;
+    if(p != NULL)
+        cout << "找到该图书！" << endl ;
+    return p ;
 }
 
 int DeleteBook(BookList *L, const char *isbn)          // 根据ISBN删除图书
@@ -136,7 +142,7 @@ void ShowAll(BookList *L)                              // 显示所有图书
         cout << "书名: " << p->title << " " ;
         cout << "作者: " << p->author << " " ;
         cout << "价格: " << p->price << " " ;
-        cout << "库存: " << p->stock << " " ;
+        cout << "库存: " << p->stock ;
         cout << endl ;
         p = p->next ;
     }
@@ -185,10 +191,145 @@ void FindByTitle(BookList *L, const char *title)       // 根据书名模糊查�
             cout << "书名: " << p->title << " " ;
             cout << "作者: " << p->author << " " ;
             cout << "价格: " << p->price << " " ;
-            cout << "库存: " << p->stock << " " ;
+            cout << "库存: " << p->stock ;
             cout << endl ;
         }
         p = p->next ;
+    }
+}
+
+// 下面是借阅记录相关函数的实现
+
+static void GetToday(char *out , int cap)                                                               // 取当天日期，格式 YYYY-MM-DD
+{
+    out[0] = '\0' ;
+    time_t t = time(NULL) ;
+    struct tm *lt = localtime(&t) ;
+    if(lt == NULL || strftime(out , (size_t)cap , "%Y-%m-%d" , lt) == 0)
+    {
+        strncpy(out , "0000-00-00" , (size_t)cap - 1) ;
+        out[cap - 1] = '\0' ;
+    }
+}
+
+void InitBorrowList(BorrowList *B)                                                                      // 初始化借阅记录链表
+{
+    B->head = new BorrowRecord ;
+    B->head->next = NULL ;
+    B->count = 0 ;
+}
+
+BorrowRecord* FindBorrowRecord(BorrowList *B , const char *isbn , const char *borrower)                 // 按ISBN+借阅人查找借阅记录
+{
+    BorrowRecord *q = B->head->next ;
+    while(q != NULL)
+    {
+        if(strcmp(q->isbn, isbn) == 0 && strcmp(q->borrower, borrower) == 0)
+            return q ;
+        q = q->next ;
+    }
+    return NULL ;
+}
+
+int AddBorrowRecord(BorrowList *B , const char *isbn , const char *borrower , const char *date)         // 尾插法记录借阅记录
+{
+    if(FindBorrowRecord(B, isbn, borrower) != NULL)
+        return 0 ;                                     
+    BorrowRecord *s = new BorrowRecord ;
+    memset(s , 0 , sizeof(BorrowRecord)) ;              
+    strncpy(s->isbn , isbn , MAX_ISBN - 1) ;
+    strncpy(s->borrower , borrower , MAX_BORROWER - 1) ;
+    strncpy(s->borrowDate , date , MAX_DATE - 1) ;
+    s->next = NULL ;
+    BorrowRecord *q = B->head ;
+    while(q->next != NULL)                             
+        q = q->next ;
+    q->next = s ;
+    B->count++ ;
+    return 1 ;
+}
+
+int BorrowBook(BookList *L , BorrowList *B , const char *isbn , const char *borrower)                   // 借书：1成功 0图书不存在 -1库存不足 -2重复借阅
+{
+    Book *p = FindBook(L, isbn) ;
+    if(p == NULL)
+        return 0 ;                                     
+    if(FindBorrowRecord(B, isbn, borrower) != NULL)
+        return -2 ;                                    // 同一人已借且未还
+    if(p->stock <= 0)
+        return -1 ;                                    // 在馆数量为 0，已全部借出
+
+    char today[MAX_DATE] ;
+    GetToday(today, MAX_DATE) ;
+    if(AddBorrowRecord(B, isbn, borrower, today) == 0)
+        return -2 ;
+
+    p->stock-- ;                                       // 借出成功：在馆数量减一
+    return 1 ;
+}
+
+int ReturnBook(BookList *L , BorrowList *B , const char *isbn , const char *borrower)                   // 还书：1成功 0图书不存在 -1无借阅记录
+{
+    Book *p = FindBook(L, isbn) ;
+    if(p == NULL)
+        return 0 ;                                    
+    BorrowRecord *q = B->head ;                        
+    while(q->next != NULL &&
+          !(strcmp(q->next->isbn, isbn) == 0 && strcmp(q->next->borrower, borrower) == 0))
+        q = q->next ;
+    if(q->next == NULL)
+        return -1 ;                                    
+    BorrowRecord *r = q->next ;
+    q->next = r->next ;
+    delete r ;                                         
+    B->count-- ;
+    p->stock++ ;                                       
+    return 1 ;
+}
+
+int CountBorrowByIsbn(BorrowList *B , const char *isbn)                                                 // 统计某本书的借出册数
+{
+    int n = 0 ;
+    BorrowRecord *q = B->head->next ;
+    while(q != NULL)
+    {
+        if(strcmp(q->isbn, isbn) == 0)
+            n++ ;
+        q = q->next ;
+    }
+    return n ;
+}
+
+void ShowBorrowed(BorrowList *B , BookList *L)                                                          // 显示全部借出记录
+{
+    BorrowRecord *q = B->head->next ;
+    if(q == NULL)
+    {
+        cout << "当前没有未归还的借阅记录！" << endl ;
+        return ;
+    }
+    cout << "当前借出记录如下（共 " << B->count << " 条）：" << endl ;
+    cout << "------------------------" << endl ;
+    while(q != NULL)
+    {
+        Book *p = FindBook(L, q->isbn) ;              
+        cout << "ISBN: " << q->isbn << " " ;
+        cout << "书名: " << (p != NULL ? p->title : "（图书已不存在）") << " " ;
+        cout << "借阅人: " << q->borrower << " " ;
+        cout << "借出日期: " << q->borrowDate ;
+        cout << endl ;
+        q = q->next ;
+    }
+}
+
+void DestroyBorrowList(BorrowList *B)                                                                   // 销毁借阅记录链表
+{
+    BorrowRecord *q = B->head ;
+    while(q != NULL)
+    {
+        BorrowRecord *r = q ;
+        q = q->next ;
+        delete r ;
     }
 }
 
